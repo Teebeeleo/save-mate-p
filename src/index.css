@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+body {
+  background-color: #f7faf5;
+  font-family: "manrope", sans-serif;
+}
+@media (max-width: 460px) {
+  body {
+    overflow-x: hidden;
+  }
+}
+
+/* Remove default thumb/circle and style range input */
+/* input[type="range"] {
+  @apply  h-2 bg-[#287f64] rounded-lg appearance-none cursor-pointer;
+  -webkit-appearance: none;
+} */
+
+/* Remove the thumb (circle) and replace with custom style */
+/* input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  @apply appearance-none w-0 h-0 bg-transparent cursor-pointer;
+} */
+
+/* input[type="range"]::-moz-range-thumb {
+  @apply w-0 h-0 bg-transparent cursor-pointer border-0;
+} */
+
+/* Optional: Add a progress line effect */
+/* input[type="range"]::-webkit-slider-runnable-track {
+  @apply bg-gradient-to-r from-teal-400 to-emerald-400 rounded-lg;
+} */
+
+/* input[type="range"]::-moz-range-track {
+  @apply bg-gradient-to-r from-teal-400 to-emerald-400 rounded-lg;
+} */
