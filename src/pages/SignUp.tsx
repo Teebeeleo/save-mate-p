@@ -9,7 +9,27 @@ import { MdCardGiftcard } from "react-icons/md";
 import { MdOutlineCopyright } from "react-icons/md";
 import Visual from "../assets/Visual.png";
 import { Link } from "react-router-dom";
+
+import { Formik } from "formik";
+import * as Yup from "yup";
+
 function SignUp() {
+  const InitialValues = {
+    name: "",
+    email: "",
+    password: "",
+    referral: "",
+    agree: false,
+  };
+  const validationSchema = Yup.object({
+    name: Yup.string().required("Full name is required"),
+    email: Yup.string().email("Invalid email").required("Email is required"),
+    password: Yup.string()
+      .min(6, "Password must be at least 6 characters")
+      .required("Password is required"),
+    referral: Yup.string(),
+    agree: Yup.boolean().oneOf([true], "You must accept terms and conditions"),
+  });
   const Field = [
     {
       label: "Full Name",
@@ -92,42 +112,80 @@ function SignUp() {
                   Start your journey toward financial freedom.
                 </p>
 
-                <div>
-                  {Field.map((field) => (
-                    <div className=" pt-3">
-                      <Input
-                        key={field.name}
-                        label={field.label}
-                        placeholder={field.placeholder}
-                        icon={field.Icon}
-                        secondIcon={field.secondIcon}
-                        name={field.name}
-                        type={field.type}
-                      />
-                    </div>
-                  ))}
+                <div className="">
+                  <Formik
+                    initialValues={InitialValues}
+                    validationSchema={validationSchema}
+                    onSubmit={(values) => console.log(values)}
+                  >
+                    {(formik) => (
+                      <form onSubmit={formik.handleSubmit}>
+                        {Field.map((filed) => (
+                          <div key={filed.name}>
+                            <Input
+                              name={filed.name}
+                              label={filed.label}
+                              placeholder={filed.placeholder}
+                              secondIcon={filed.secondIcon}
+                              icon={filed.Icon}
+                              type={filed.type}
+                              value={
+                                formik.values[
+                                  filed.name as keyof typeof InitialValues
+                                ] as string
+                              }
+                              onChange={formik.handleChange}
+                              onBlur={formik.handleBlur}
+                              error={
+                                formik.errors[
+                                  filed.name as keyof typeof InitialValues
+                                ] || ""
+                              }
+                              touched={
+                                formik.touched[
+                                  filed.name as keyof typeof InitialValues
+                                ]
+                              }
+                            />
+                          </div>
+                        ))}
+
+                        <div className="md:pt-2 pt-4">
+                          <label htmlFor="agree" className="flex gap-1">
+                            <input
+                              name="agree"
+                              checked={formik.values.agree}
+                              id="agree"
+                              onChange={formik.handleChange}
+                              type="checkbox"
+                              className=" accent-[#00543B] hover:accent-[#00543B]"
+                            />
+                            <span className="text-[14px] md:text-[12px]">
+                              I agree to the
+                              <a href="" className="text-[#00543B]">
+                                Terms of Service and Privacy Policy.
+                              </a>
+                            </span>
+                          </label>
+                          {formik.touched.agree && formik.errors.agree && (
+                            <p className="text-red-500 text-xs mt-1">
+                              {formik.errors.agree}
+                            </p>
+                          )}
+                        </div>
+                        <div className="md:mt-5 mt-4 ">
+                          <button
+                            type="submit"
+                            className=" cursor-pointer bg-[#00543B] text-white px-3 py-3 w-full rounded-xl"
+                          >
+                            Create Account{" "}
+                          </button>
+                        </div>
+                      </form>
+                    )}
+                  </Formik>
                 </div>
 
-                <div className="md:pt-2 pt-4">
-                  <label htmlFor="agree" className="flex gap-1">
-                    <input
-                      id="agree"
-                      type="checkbox"
-                      className=" accent-[#00543B] hover:accent-[#00543B]"
-                    />
-                    <span className="text-[14px] md:text-[12px]">
-                      I agree to the
-                      <a href="" className="text-[#00543B]">
-                        Terms of Service and Privacy Policy.
-                      </a>
-                    </span>
-                  </label>
-                </div>
-                <div className="md:mt-5 mt-4 ">
-                  <button className=" cursor-pointer bg-[#00543B] text-white px-3 py-3 w-full rounded-xl">
-                    Create Account{" "}
-                  </button>
-                </div>
                 <div className="flex items-center gap-3 mt-5">
                   <div className=" hidden md:block border-t w-23 border-[#d8e7e0]"></div>
                   <p className="max-sm:flex max-sm:justify-center max-sm:w-full">

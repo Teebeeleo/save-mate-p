@@ -1,3 +1,4 @@
+import type { FocusEventHandler } from "react";
 import type { IconType } from "react-icons";
 
 type InputProps = {
@@ -7,6 +8,11 @@ type InputProps = {
   secondIcon?: IconType;
   type: string;
   name: string;
+  value: string;
+  onChange?:React.ChangeEventHandler<HTMLInputElement>
+  onBlur?: React.FocusEventHandler<HTMLInputElement>
+  error?:string
+  touched?:boolean
 };
 
 function Input({
@@ -15,7 +21,7 @@ function Input({
   icon: Icon,
   secondIcon: Iconn,
   type,
-  name,
+  name,value,onChange,onBlur,error,touched
 }: InputProps) {
   return (
     <>
@@ -29,8 +35,15 @@ function Input({
           type={type}
           placeholder={placeholder}
           name={name}
+          onBlur={onBlur}
+          
+          value={value}
+          onChange={onChange}
           className="pl-8 md:pr-46 pr-36 py-2 bg-[#dfe6dd] focus:border-none outline-none placeholder:text-[14px] shadow"
         />
+        {error && touched && (
+          <p className="text-red-500 text-xs">{error}</p>
+        )}
 
         {Iconn && (
           <div className="text-[#3F4943] absolute top-9 right-2 ">
