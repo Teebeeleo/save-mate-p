@@ -6,13 +6,24 @@ import { IoArrowBack } from "react-icons/io5";
 import { useState } from "react";
 import Conatiner from "../assets/Container.png";
 import { Link, useNavigate } from "react-router-dom";
+import { Formik } from "formik";
+import * as Yup from "yup";
 function SignIn() {
   const [step, setStep] = useState<number>(1);
-  const [email, setEmail] = useState<string>("");
-  const Navigate = useNavigate();
-  const HandleSubmit = () => {
-    Navigate("/");
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate()
+
+  const initialValues = {
+    email: "",
+    password: "",
   };
+  const validationSchema = Yup.object({
+    // email: Yup.string().email("Invalid email").required("Email is required"),
+    email: Yup.string().required("Email is required"),
+    password: Yup.string()
+
+      .required("Password is required"),
+  });
   return (
     <>
       <div className="md:flex ">
@@ -52,68 +63,141 @@ function SignIn() {
                   <div className="border-t-2 border-[#d4dcd7] w-[46%]"></div>
                 </div>
 
-                <div className="mt-5 text-[#9aa19b] flex flex-col">
-                  {step === 1 && (
-                    <>
-                      <label htmlFor="" className="pb-2">
-                        Email address
-                      </label>
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="e.g. Stewardship@mysavemate.com"
-                        className=" py-3 outline-[#d4dcd7] placeholder:text-[#5c615d] bg-white rounded-xl px-2 shadow "
-                      />
-                      <button
-                        onClick={() => setStep(2)}
-                        className="text-white bg-[#00543b] py-3 font-semibold rounded-xl  mt-5 cursor-pointer"
-                      >
-                        Continue
-                      </button>
+                <Formik
+                  initialValues={initialValues}
+                  validationSchema={validationSchema}
+                  onSubmit={async (values) => {
+                    try {
+                      setIsLoading(true);
+                      const response = await fetch(
+                        "https://dummyjson.com/auth/login",
+                        {
+                          method: "POST",
+                          headers: {
+                            "Content-Type": "application/json",
+                          },
+                          body: JSON.stringify({
+                            username: values.email,
+                            password: values.password,
+                          }),
+                        },
+                      );
+                      const data = await response.json();
+                      if (response.ok) {
+                        localStorage.setItem("user", JSON.stringify(data));
+                        navigate("/")
+                        console.log("Log in successful");
+                        console.log(data);
+                      } else {
+                        console.log("Invalid username or password");
+                      }
+                    } catch (error) {
+                      console.log(error);
+                    } finally {
+                      setIsLoading(false);
+                    }
+                  }}
+                >
+                  {(formik) => (
+                    <form
+                      onSubmit={formik.handleSubmit}
+                      className="mt-5 text-[#9aa19b] flex flex-col"
+                    >
+                      {step === 1 && (
+                        <>
+                          <label htmlFor="" className="pb-2">
+                            Email address
+                          </label>
+                          <input
+                            type="name"
+                            name="email"
+                            value={formik.values.email}
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                            placeholder="e.g. Stewardship@mysavemate.com"
+                            className=" py-3 outline-[#d4dcd7] placeholder:text-[#5c615d] bg-white rounded-xl px-2 shadow "
+                          />
+                          {formik.touched.email && formik.errors.email && (
+                            <p className="text-red-500 text-xs mt-1">
+                              {formik.errors.email}
+                            </p>
+                          )}
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              formik.setFieldTouched("email", true);
+                              const errors = await formik.validateForm();
+                              if (!errors.email) {
+                                setStep(2);
+                              }
+                            }}
+                            className="text-white bg-[#00543b] py-3 font-semibold rounded-xl  mt-5 cursor-pointer"
+                          >
+                            Continue
+                          </button>
 
-                      <div className="flex justify-center md:pt-3 pt-5">
-                        <p className="text-[#4b544e]">
-                          Don't have an account?{" "}
-                          <Link to="/signUp" className="text-[#216a54] font-semibold">
-                            sign up
-                          </Link>
-                        </p>
-                      </div>
-                    </>
-                  )}
+                          <div className="flex justify-center md:pt-3 pt-5">
+                            <p className="text-[#4b544e]">
+                              Don't have an account?{" "}
+                              <Link
+                                to="/signUp"
+                                className="text-[#216a54] font-semibold"
+                              >
+                                sign up
+                              </Link>
+                            </p>
+                          </div>
+                        </>
+                      )}
 
-                  {step === 2 && (
-                    <>
-                      <p className="text-sm text-[#00543b] font-semibold mb-3">
-                        {email}
-                      </p>
-                      <label htmlFor="" className="pb-1">
-                        Password
-                      </label>
-                      <input
-                        type="password"
-                        placeholder="Enter your password"
-                        className=" py-3 outline-[#d4dcd7] placeholder:text-[#5c615d] bg-white rounded-xl px-2 shadow "
-                      />
-                      <button onClick={HandleSubmit}  className="text-white cursor-pointer bg-[#00543b] py-3 font-semibold rounded-xl  mt-3">
-                        Sign in
-                      </button>
-                      <div className="flex  justify-between mt-2 ">
-                        <button className="text-red-400">
-                          <a href="">Forgotten Password?</a>
-                        </button>
-                        <button
-                          onClick={() => setStep(1)}
-                          className="border hover:bg-[#00543b] hover:text-white rounded-xl px-2 font-semibold flex gap-1 items-center cursor-pointer "
-                        >
-                          <IoArrowBack />
-                          Back
-                        </button>
-                      </div>
-                    </>
+                      {step === 2 && (
+                        <>
+                          <p className="text-sm text-[#00543b] font-semibold mb-3">
+                            {formik.values.email}
+                          </p>
+                          <label htmlFor="" className="pb-1">
+                            Password
+                          </label>
+                          <input
+                            type="password"
+                            name="password"
+                            value={formik.values.password}
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                            placeholder="Enter your password"
+                            className=" py-3 outline-[#d4dcd7] placeholder:text-[#5c615d] bg-white rounded-xl px-2 shadow "
+                          />
+                          {formik.touched.password &&
+                            formik.errors.password && (
+                              <p className="text-red-500 text-xs mt-1">
+                                {formik.errors.password}
+                              </p>
+                            )}
+                          <button
+                            type="submit"
+                            disabled={isLoading}
+                            className="text-white cursor-pointer bg-[#00543b] py-3 font-semibold rounded-xl  mt-3"
+                          >
+                            {isLoading ? "Signing in... " : "Sign in"}
+                          </button>
+                          <div className="flex  justify-between mt-2 ">
+                            <div className="text-red-400">
+                              <a href="">Forgotten Password?</a>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setStep(1)}
+                              className="border hover:bg-[#00543b] hover:text-white rounded-xl px-2 font-semibold flex gap-1 items-center cursor-pointer "
+                            >
+                              <IoArrowBack />
+                              Back
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </form>
                   )}
-                </div>
+                </Formik>
                 <div className="mt-5 md:hidden flex gap-2 items-center text-[#5c615d] text-[18px]">
                   <div className="border-t-2 border-[#d4dcd7] w-[46%]"></div>
                   <p>or</p>

@@ -2,15 +2,13 @@ import SeconNav from "../componets/SeconNav";
 import Icon from "../assets/Icon.png";
 import Input from "../componets/Input";
 import { FaRegUser } from "react-icons/fa";
-import { IoEyeSharp } from "react-icons/io5";
+
 import { MdMailOutline } from "react-icons/md";
 import { MdLockOutline } from "react-icons/md";
 import { MdCardGiftcard } from "react-icons/md";
 import { MdOutlineCopyright } from "react-icons/md";
 import Visual from "../assets/Visual.png";
 import { Link } from "react-router-dom";
-import axios from "axios";
-
 import { Formik } from "formik";
 import * as Yup from "yup";
 
@@ -24,8 +22,7 @@ function SignUp() {
   };
   const validationSchema = Yup.object({
     name: Yup.string().required("Full name is required"),
-    email: Yup.string().required("Username is required"),
-    // email: Yup.string().email("Invalid email").required("Email is required"),
+    email: Yup.string().email("Invalid email").required("Email is required"),
     password: Yup.string()
       .min(6, "Password must be at least 6 characters")
       .required("Password is required"),
@@ -52,7 +49,7 @@ function SignUp() {
       Icon: MdLockOutline,
       placeholder: "********",
       name: "password",
-      secondIcon: IoEyeSharp,
+
       type: "password",
     },
     {
@@ -118,24 +115,8 @@ function SignUp() {
                   <Formik
                     initialValues={InitialValues}
                     validationSchema={validationSchema}
-                    onSubmit={async(values,{setSubmitting})=>{
-                      try {
-                        const response = await axios.post(
-                          "https://dummyjson.com/auth/login",
-                          {
-                            username:values.email,
-                            password:values.password
-                          }
-                        )
-                        console.log(response.data)
-                        alert("login successful")
-                        
-                      } catch (error) {
-                        console.log("Invalid username or password")
-                        
-                      } finally {
-                        setSubmitting(false)
-                      }
+                    onSubmit={(value) => {
+                      console.log(value);
                     }}
                   >
                     {(formik) => (
@@ -146,7 +127,6 @@ function SignUp() {
                               name={filed.name}
                               label={filed.label}
                               placeholder={filed.placeholder}
-                              secondIcon={filed.secondIcon}
                               icon={filed.Icon}
                               type={filed.type}
                               value={
@@ -195,11 +175,10 @@ function SignUp() {
                         </div>
                         <div className="md:mt-5 mt-4 ">
                           <button
-                          disabled={formik.isSubmitting}
                             type="submit"
                             className=" cursor-pointer bg-[#00543B] text-white px-3 py-3 w-full rounded-xl"
                           >
-                            {formik.isSubmitting ? "creating..." : "Create Account"}
+                            Create Account
                           </button>
                         </div>
                       </form>
